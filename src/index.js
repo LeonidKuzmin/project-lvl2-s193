@@ -1,7 +1,8 @@
 import fs from 'fs';
 import _ from 'lodash';
-import yaml from 'js-yaml';
 import path from 'path';
+import yaml from 'js-yaml';
+import ini from 'ini';
 
 const parsers = [
   {
@@ -11,6 +12,10 @@ const parsers = [
   {
     check: format => format === '.YML',
     parser: yaml.safeLoad,
+  },
+  {
+    check: format => format === '.INI',
+    parser: ini.parse,
   },
 ];
 
