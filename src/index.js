@@ -1,23 +1,26 @@
 import fs from 'fs';
 import _ from 'lodash';
 import yaml from 'js-yaml';
+import path from 'path';
 
-const fileExtension = pathToFile => pathToFile.split('.').pop();
+const parsers = [
+  {
+    check: format => format === '.JSON',
+    parser: JSON.parse,
+  },
+  {
+    check: format => format === '.YML',
+    parser: yaml.safeLoad,
+  },
+];
 
-const parseTextToObj = (text, format) => {
-  switch (format) {
-    case 'JSON':
-      return JSON.parse(text);
-    case 'YML':
-      return yaml.safeLoad(text);
-    default:
-      return {};
-  }
-};
+const getParser = format => _.find(parsers, ({ check }) => check(format)).parser;
+
+const parseTextToObj = (text, format) => getParser(format)(text);
 
 const readFileToObj = (pathToFile) => {
   const content = fs.readFileSync(pathToFile, 'utf8');
-  const format = fileExtension(pathToFile).toUpperCase();
+  const format = path.extname(pathToFile).toUpperCase();
   return parseTextToObj(content, format);
 };
 
