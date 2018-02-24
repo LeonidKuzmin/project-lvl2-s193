@@ -4,29 +4,16 @@ import path from 'path';
 import yaml from 'js-yaml';
 import ini from 'ini';
 
-const parsers = [
-  {
-    check: format => format === '.JSON',
-    parser: JSON.parse,
-  },
-  {
-    check: format => format === '.YML',
-    parser: yaml.safeLoad,
-  },
-  {
-    check: format => format === '.INI',
-    parser: ini.parse,
-  },
-];
-
-const getParser = format => _.find(parsers, ({ check }) => check(format)).parser;
-
-const parseTextToObj = (text, format) => getParser(format)(text);
+const parsers = {
+  json: JSON.parse,
+  yml: yaml.safeLoad,
+  ini: ini.parse,
+};
 
 const readFileToObj = (pathToFile) => {
   const content = fs.readFileSync(pathToFile, 'utf8');
-  const format = path.extname(pathToFile).toUpperCase();
-  return parseTextToObj(content, format);
+  const format = path.extname(pathToFile).substr(1).toLowerCase();
+  return parsers[format](content);
 };
 
 const compareObjects = (obj1, obj2) => {

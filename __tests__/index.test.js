@@ -12,7 +12,7 @@ test('Compare two JSON files', () => {
 });
 
 test('Compare two YAML files', () => {
-  expect(genDiff('__tests__/__fixtures__/before.yml', '__tests__/__fixtures__/after.yml'))
+  expect(genDiff('__tests__/__fixtures__/Before.Yml', '__tests__/__fixtures__/after.yml'))
     .toBe(`{
     host: hexlet.io
   + timeout: 20
@@ -34,7 +34,7 @@ test('Compare JSON and YAML files', () => {
 });
 
 test('Compare YAML and JSON files', () => {
-  expect(genDiff('__tests__/__fixtures__/before.yml', '__tests__/__fixtures__/after.json'))
+  expect(genDiff('__tests__/__fixtures__/Before.Yml', '__tests__/__fixtures__/after.json'))
     .toBe(`{
     host: hexlet.io
   + timeout: 20
@@ -45,7 +45,7 @@ test('Compare YAML and JSON files', () => {
 });
 
 test('Compare two INI files', () => {
-  expect(genDiff('__tests__/__fixtures__/before.ini', '__tests__/__fixtures__/after.ini'))
+  expect(genDiff('__tests__/__fixtures__/before.ini', '__tests__/__fixtures__/AFTER.INI'))
     .toBe(`{
     host: hexlet.io
   + timeout: 20
@@ -56,7 +56,7 @@ test('Compare two INI files', () => {
 });
 
 test('Compare JSON and INI files', () => {
-  expect(genDiff('__tests__/__fixtures__/before.json', '__tests__/__fixtures__/after.ini'))
+  expect(genDiff('__tests__/__fixtures__/before.json', '__tests__/__fixtures__/AFTER.INI'))
     .toBe(`{
     host: hexlet.io
   + timeout: 20
@@ -78,7 +78,7 @@ test('Compare INI and JSON files', () => {
 });
 
 test('Compare YAML and INI files', () => {
-  expect(genDiff('__tests__/__fixtures__/before.yml', '__tests__/__fixtures__/after.ini'))
+  expect(genDiff('__tests__/__fixtures__/Before.Yml', '__tests__/__fixtures__/AFTER.INI'))
     .toBe(`{
     host: hexlet.io
   + timeout: 20
