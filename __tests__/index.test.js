@@ -1,19 +1,5 @@
 import fs from 'fs';
-import genDiff, { genDiffWithoutRender } from '../src';
-
-const flatFilesExpectationAST1 = [
-  { action: ' ', key: 'host', value: 'hexlet.io' },
-  { action: '-', key: 'timeout', value: 50 },
-  { action: '+', key: 'timeout', value: 20 },
-  { action: '-', key: 'proxy', value: '123.234.53.22' },
-  { action: '+', key: 'verbose', value: true },
-];
-
-test('Flat files: Compare two JSON files without render', () => {
-  expect(genDiffWithoutRender('__tests__/__fixtures__/flat_before.json', '__tests__/__fixtures__/flat_after.json'))
-    .toEqual(flatFilesExpectationAST1);
-});
-
+import genDiff from '../src';
 
 const flatFilesExpectation = fs.readFileSync('__tests__/__fixtures__/flat_expectation.txt', 'utf8');
 
@@ -63,78 +49,11 @@ test('Flat files: Compare INI and YAML files', () => {
 });
 
 
-const expectationAST1 = [
-  {
-    action: ' ',
-    key: 'common',
-    value: [
-      { action: ' ', key: 'setting1', value: 'Value 1' },
-      { action: '-', key: 'setting2', value: '200' },
-      { action: '-', key: 'setting3', value: true },
-      {
-        action: '+',
-        key: 'setting3',
-        value: [
-          { action: ' ', key: 'key', value: 'value' },
-        ],
-      },
-      {
-        action: ' ',
-        key: 'setting6',
-        value: [
-          { action: ' ', key: 'key', value: 'value' },
-          { action: '+', key: 'ops', value: 'vops' },
-        ],
-      },
-      { action: '+', key: 'setting4', value: 'blah blah' },
-      {
-        action: '+',
-        key: 'setting5',
-        value: [
-          { action: ' ', key: 'key5', value: 'value5' },
-        ],
-      },
-    ],
-  },
-
-  {
-    action: ' ',
-    key: 'group1',
-    value: [
-      { action: '-', key: 'baz', value: 'bas' },
-      { action: '+', key: 'baz', value: 'bars' },
-      { action: ' ', key: 'foo', value: 'bar' },
-      {
-        action: '-',
-        key: 'nest',
-        value: [
-          { action: ' ', key: 'key', value: 'value' },
-        ],
-      },
-      { action: '+', key: 'nest', value: 'str' },
-    ],
-  },
-
-  {
-    action: '-',
-    key: 'group2',
-    value: [
-      { action: ' ', key: 'abc', value: '12345' },
-    ],
-  },
-
-  {
-    action: '+',
-    key: 'group3',
-    value: [
-      { action: ' ', key: 'fee', value: '100500' },
-    ],
-  },
-];
-
-test('Compare two JSON files without render', () => {
-  expect(genDiffWithoutRender('__tests__/__fixtures__/before.json', '__tests__/__fixtures__/after.json'))
-    .toEqual(expectationAST1);
+test('Flat files: Compare two JSON files. Plain output', () => {
+  expect(genDiff('__tests__/__fixtures__/flat_before.json', '__tests__/__fixtures__/flat_after.json', 'plain'))
+    .toBe(`Property 'timeout' was updated. From 50 to 20
+Property 'proxy' was removed
+Property 'verbose' was added with value: true`);
 });
 
 
@@ -183,4 +102,17 @@ test('Compare YAML and INI files', () => {
 test('Compare INI and YAML files', () => {
   expect(genDiff('__tests__/__fixtures__/before.ini', '__tests__/__fixtures__/after.yml'))
     .toBe(expectation);
+});
+
+test('Compare two JSON files. Plain output', () => {
+  expect(genDiff('__tests__/__fixtures__/before.json', '__tests__/__fixtures__/after.json', 'plain'))
+    .toBe(`Property 'common.setting2' was removed
+Property 'common.setting3' was updated. From true to complex value
+Property 'common.setting6.ops' was added with value: 'vops'
+Property 'common.setting4' was added with value: 'blah blah'
+Property 'common.setting5' was added with complex value
+Property 'group1.baz' was updated. From 'bas' to 'bars'
+Property 'group1.nest' was updated. From complex value to 'str'
+Property 'group2' was removed
+Property 'group3' was added with complex value`);
 });
