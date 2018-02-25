@@ -4,33 +4,31 @@ const wrap = v => (_.isString(v) ? `'${v}'` : v);
 
 export default (ast) => {
   const helper = (restAst, prefix = '') => restAst
-    .reduce((acc, {
-      diffType,
-      key,
-      content,
-      oldContent,
-    }) => {
-      if (diffType === 'removed') {
-        return [...acc, `Property '${prefix}${key}' was removed`];
+    .reduce((acc, obj) => {
+      if (obj.diffType === 'removed') {
+        return [...acc, `Property '${prefix}${obj.key}' was removed`];
       }
-      if (diffType === 'added' && !_.isArray(content)) {
-        return [...acc, `Property '${prefix}${key}' was added with value: ${wrap(content)}`];
+
+      if (obj.diffType === 'added' && _.has(obj, 'value')) {
+        return [...acc, `Property '${prefix}${obj.key}' was added with value: ${wrap(obj.value)}`];
       }
-      if (diffType === 'added') {
-        return [...acc, `Property '${prefix}${key}' was added with complex value`];
+      if (obj.diffType === 'added' && _.has(obj, 'children')) {
+        return [...acc, `Property '${prefix}${obj.key}' was added with complex value`];
       }
-      if (diffType === 'updated') {
-        const old = _.isArray(oldContent) ? 'complex value' : `${wrap(oldContent)}`;
-        const current = _.isArray(content) ? 'complex value' : `${wrap(content)}`;
-        return [...acc, `Property '${prefix}${key}' was updated. From ${old} to ${current}`];
+
+      if (obj.diffType === 'updated') {
+        const old = _.has(obj, 'oldChildren') ? 'complex value' : `${wrap(obj.oldValue)}`;
+        const current = _.has(obj, 'children') ? 'complex value' : `${wrap(obj.value)}`;
+        return [...acc, `Property '${prefix}${obj.key}' was updated. From ${old} to ${current}`];
       }
-      if (_.isArray(content)) {
-        return [...acc, ...helper(content, `${prefix}${key}.`)];
+
+      if (_.has(obj, 'children')) {
+        return [...acc, ...helper(obj.children, `${prefix}${obj.key}.`)];
       }
       return acc;
     }, []);
 
   const rows = helper(ast).join('\n');
 
-  return rows;
+  return `${rows}\n`;
 };

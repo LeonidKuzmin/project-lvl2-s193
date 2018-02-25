@@ -1,38 +1,40 @@
 import _ from 'lodash';
 
-const simpleDiffTypes = new Set(['keeped', 'added', 'removed']);
-const simpleDiffTypeRenderers = { keeped: ' ', added: '+', removed: '-' };
+const simpleDiffTypes = new Set(['keeped', 'added', 'removed', 'inherited']);
+
+const simpleDiffTypeRenderers = {
+  keeped: ' ',
+  added: '+',
+  removed: '-',
+  inherited: ' ',
+};
 
 export default (ast) => {
   const helper = restAst => restAst
-    .reduce((acc, {
-      diffType,
-      key,
-      content,
-      oldContent,
-    }) => {
-      if (simpleDiffTypes.has(diffType) && !_.isArray(content)) {
-        return [...acc, `${simpleDiffTypeRenderers[diffType]} ${key}: ${content}`];
+    .reduce((acc, obj) => {
+      if (simpleDiffTypes.has(obj.diffType) && _.has(obj, 'value')) {
+        return [...acc, `${simpleDiffTypeRenderers[obj.diffType]} ${obj.key}: ${obj.value}`];
       }
-      if (simpleDiffTypes.has(diffType)) {
+      if (simpleDiffTypes.has(obj.diffType) && _.has(obj, 'children')) {
         return [
           ...acc,
-          `${simpleDiffTypeRenderers[diffType]} ${key}: {`,
-          ...helper(content).map(s => `  ${s}`),
+          `${simpleDiffTypeRenderers[obj.diffType]} ${obj.key}: {`,
+          ...helper(obj.children).map(s => `  ${s}`),
           '  }',
         ];
       }
-      if (diffType === 'updated') {
+
+      if (obj.diffType === 'updated') {
         return [
           ...acc,
-          ...(!_.isArray(oldContent)
-            ? [`- ${key}: ${oldContent}`]
-            : [`- ${key}: {`, ...helper(oldContent).map(s => `  ${s}`), '  }']
-          ),
-          ...(!_.isArray(content)
-            ? [`+ ${key}: ${content}`]
-            : [`+ ${key}: {`, ...helper(content).map(s => `  ${s}`), '  }']
-          ),
+          ...(_.has(obj, 'oldValue')
+            ? [`- ${obj.key}: ${obj.oldValue}`] : []),
+          ...(_.has(obj, 'oldChildren')
+            ? [`- ${obj.key}: {`, ...helper(obj.oldChildren).map(s => `  ${s}`), '  }'] : []),
+          ...(_.has(obj, 'value')
+            ? [`+ ${obj.key}: ${obj.value}`] : []),
+          ...(_.has(obj, 'children')
+            ? [`+ ${obj.key}: {`, ...helper(obj.children).map(s => `  ${s}`), '  }'] : []),
         ];
       }
       return acc;

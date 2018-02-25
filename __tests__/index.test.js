@@ -53,7 +53,20 @@ test('Flat files: Compare two JSON files. Plain output', () => {
   expect(genDiff('__tests__/__fixtures__/flat_before.json', '__tests__/__fixtures__/flat_after.json', 'plain'))
     .toBe(`Property 'timeout' was updated. From 50 to 20
 Property 'proxy' was removed
-Property 'verbose' was added with value: true`);
+Property 'verbose' was added with value: true
+`);
+});
+
+
+const flatFilesExpectationJSON = fs.readFileSync('__tests__/__fixtures__/flat_expectation.json', 'utf8');
+
+test('Flat files: Compare two JSON files. JSON output', () => {
+  expect(genDiff(
+    '__tests__/__fixtures__/flat_before.json',
+    '__tests__/__fixtures__/flat_after.json',
+    'json',
+  ))
+    .toBe(flatFilesExpectationJSON);
 });
 
 
@@ -114,5 +127,14 @@ Property 'common.setting5' was added with complex value
 Property 'group1.baz' was updated. From 'bas' to 'bars'
 Property 'group1.nest' was updated. From complex value to 'str'
 Property 'group2' was removed
-Property 'group3' was added with complex value`);
+Property 'group3' was added with complex value
+`);
+});
+
+
+const expectationJSON = fs.readFileSync('__tests__/__fixtures__/expectation.json', 'utf8');
+
+test('Compare two JSON files. JSON output', () => {
+  expect(genDiff('__tests__/__fixtures__/before.json', '__tests__/__fixtures__/after.json', 'json'))
+    .toBe(expectationJSON);
 });

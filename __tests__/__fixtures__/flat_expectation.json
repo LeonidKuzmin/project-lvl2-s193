@@ -1,0 +1,1 @@
+[{"diffType":"keeped","key":"host","value":"hexlet.io"},{"diffType":"updated","key":"timeout","oldValue":50,"value":20},{"diffType":"removed","key":"proxy","value":"123.234.53.22"},{"diffType":"added","key":"verbose","value":true}]
