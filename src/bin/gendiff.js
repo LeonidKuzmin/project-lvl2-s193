@@ -2,12 +2,13 @@
 
 import program from 'commander';
 import genDiff from '..';
+import { version } from '../../package.json';
 
 program
-  .version('0.0.9')
-  .usage('[options] <firstConfig> <secondConfig>')
+  .version(version)
   .description('Compares two configuration files and shows a difference.')
   .option('-f, --format [type]', 'Output format')
+  .arguments('<firstConfig> <secondConfig>')
   .action((firstConfig, secondConfig) =>
     console.log(genDiff(firstConfig, secondConfig, program.format)));
 

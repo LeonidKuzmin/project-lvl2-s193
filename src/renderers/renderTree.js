@@ -1,47 +1,33 @@
 import _ from 'lodash';
 
-const simpleDiffTypes = new Set(['keeped', 'added', 'removed', 'inherited']);
+const spacer = '  ';
 
-const simpleDiffTypeRenderers = {
-  keeped: ' ',
-  added: '+',
-  removed: '-',
-  inherited: ' ',
+const renderValue = (level, value) => {
+  if (!_.isObject(value)) {
+    return value;
+  }
+  const rows = Object.keys(value).map(key => `${spacer.repeat(level + 2)}${key}: ${value[key]}`).join('\n');
+  return `{\n${rows}\n${spacer.repeat(level)}}`;
 };
 
-export default (ast) => {
-  const helper = restAst => restAst
-    .reduce((acc, obj) => {
-      if (simpleDiffTypes.has(obj.diffType) && _.has(obj, 'value')) {
-        return [...acc, `${simpleDiffTypeRenderers[obj.diffType]} ${obj.key}: ${obj.value}`];
-      }
-      if (simpleDiffTypes.has(obj.diffType) && _.has(obj, 'children')) {
-        return [
-          ...acc,
-          `${simpleDiffTypeRenderers[obj.diffType]} ${obj.key}: {`,
-          ...helper(obj.children).map(s => `  ${s}`),
-          '  }',
-        ];
-      }
-
-      if (obj.diffType === 'updated') {
-        return [
-          ...acc,
-          ...(_.has(obj, 'oldValue')
-            ? [`- ${obj.key}: ${obj.oldValue}`] : []),
-          ...(_.has(obj, 'oldChildren')
-            ? [`- ${obj.key}: {`, ...helper(obj.oldChildren).map(s => `  ${s}`), '  }'] : []),
-          ...(_.has(obj, 'value')
-            ? [`+ ${obj.key}: ${obj.value}`] : []),
-          ...(_.has(obj, 'children')
-            ? [`+ ${obj.key}: {`, ...helper(obj.children).map(s => `  ${s}`), '  }'] : []),
-        ];
-      }
-      return acc;
-    }, [])
-    .map(s => `  ${s}`);
-
-  const rows = helper(ast).join('\n');
-
-  return `{\n${rows}\n}\n`;
+const templates = {
+  inserted: (level, name, value) => `${spacer.repeat(level)}+ ${name}: ${renderValue(level + 1, value)}`,
+  deleted: (level, name, value) => `${spacer.repeat(level)}- ${name}: ${renderValue(level + 1, value)}`,
+  stable: (level, name, value) => `${spacer.repeat(level)}  ${name}: ${renderValue(level + 1, value)}`,
+  changed: (level, name, value) => [
+    templates.deleted(level, name, value.old),
+    templates.inserted(level, name, value.new),
+  ],
+  nested: (level, name, value, f) => `${spacer.repeat(level)}  ${name}: ${f(value, level + 2)}`,
 };
+
+const renderTree = (ast, level = 1) => {
+  const arr = ast
+    .map(({ name, type, value }) => templates[type](level, name, value, renderTree));
+
+  const rows = _.flatten(arr).join('\n');
+
+  return `{\n${rows}\n${spacer.repeat(level - 1)}}`;
+};
+
+export default renderTree;

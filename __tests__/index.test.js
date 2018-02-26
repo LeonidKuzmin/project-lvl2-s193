@@ -53,8 +53,7 @@ test('Flat files: Compare two JSON files. Plain output', () => {
   expect(genDiff('__tests__/__fixtures__/flat_before.json', '__tests__/__fixtures__/flat_after.json', 'plain'))
     .toBe(`Property 'timeout' was updated. From 50 to 20
 Property 'proxy' was removed
-Property 'verbose' was added with value: true
-`);
+Property 'verbose' was added with value: true`);
 });
 
 
@@ -117,6 +116,7 @@ test('Compare INI and YAML files', () => {
     .toBe(expectation);
 });
 
+
 test('Compare two JSON files. Plain output', () => {
   expect(genDiff('__tests__/__fixtures__/before.json', '__tests__/__fixtures__/after.json', 'plain'))
     .toBe(`Property 'common.setting2' was removed
@@ -127,8 +127,7 @@ Property 'common.setting5' was added with complex value
 Property 'group1.baz' was updated. From 'bas' to 'bars'
 Property 'group1.nest' was updated. From complex value to 'str'
 Property 'group2' was removed
-Property 'group3' was added with complex value
-`);
+Property 'group3' was added with complex value`);
 });
 
 
